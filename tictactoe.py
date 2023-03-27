@@ -65,7 +65,7 @@ def game_init():
     gui_init()
 
 def game_init_state():
-    """重置游戏到初始状态"""
+    """重置游戏到初始状态。"""
     global board, current_piece, piece_order
 
     board = [[Cell.Empty for i in range(COLS)] for j in range(ROWS)]
@@ -73,7 +73,7 @@ def game_init_state():
     piece_order = []
 
 def switch_piece():
-    """切换当前落子 current_piece 到另一方"""
+    """切换当前落子 current_piece 到另一方。"""
 
     global current_piece
     assert(current_piece)
