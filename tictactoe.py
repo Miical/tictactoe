@@ -66,6 +66,7 @@ def game_init():
 
 def game_init_state():
     """重置游戏到初始状态。"""
+
     global board, current_piece, piece_order
 
     board = [[Cell.Empty for i in range(COLS)] for j in range(ROWS)]
@@ -86,6 +87,7 @@ def place_chess_at(pos):
     assert(cell_at(pos) == Cell.Empty)
     assert(piece_order != None)
     assert(current_piece != None)
+    assert(game_is_over() == False)
 
     set_cell_at(pos, current_piece)
     piece_order.append(pos)
@@ -159,7 +161,7 @@ def game_is_over():
     return winner() != None
 
 def print_board():
-    """打印当前棋盘"""
+    """打印当前棋盘。"""
 
     print("---------")
     for row in range(ROWS):
@@ -231,6 +233,17 @@ def display():
     draw_all_pieces()
     pygame.display.flip()
 
+def print_winning_information():
+    """打印获胜信息，如果游戏未结束则无操作。"""
+
+    win = winner()
+    if win == Piece.X:
+        print("X wins!")
+    elif win == Piece.O:
+        print("O wins!")
+    elif win == 0:
+        print("Game draw!")
+
 def game_main_loop(computer_drop = None, player_first = True):
     """游戏主循环，调用此函数开始游戏。
 
@@ -272,4 +285,5 @@ def game_main_loop(computer_drop = None, player_first = True):
                     display()
                     if computer_drop != None and not game_is_over():
                         place_chess_at(computer_drop())
+                    print_winning_information()
                     display()
