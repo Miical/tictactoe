@@ -1,5 +1,7 @@
 """井字棋游戏"""
+
 import pygame
+from pygame.locals import *
 
 ######################
 #   游戏参数/状态表示   #
@@ -22,6 +24,7 @@ class Cell:
 
 board = None         # 棋盘状态
 current_piece = None # 当前棋子
+piece_order = None   # 落子顺序
 
 ##############
 #  单元格操作  #
@@ -58,21 +61,43 @@ def set_cell_at(pos, state):
 def game_init():
     """设置游戏初始状态，初始化游戏界面。"""
 
-    global board, current_piece
+    game_init_state()
+    gui_init()
+
+def game_init_state():
+    """重置游戏到初始状态"""
+    global board, current_piece, piece_order
 
     board = [[Cell.Empty for i in range(COLS)] for j in range(ROWS)]
     current_piece = Piece.X
-    gui_init()
+    piece_order = []
+
+def switch_piece():
+    """切换当前落子 current_piece 到另一方"""
+
+    global current_piece
+    assert(current_piece)
+
+    current_piece = Piece.X if current_piece == Piece.O else Piece.O
 
 def place_chess_at(pos):
     """在 pos 处落子，落子类型由当前棋子 current_piece 指定。"""
 
-    global current_piece
     assert(cell_at(pos) == Cell.Empty)
+    assert(piece_order != None)
     assert(current_piece != None)
 
     set_cell_at(pos, current_piece)
-    current_piece = Piece.X if current_piece == Piece.O else Piece.O
+    piece_order.append(pos)
+    switch_piece()
+
+def undo_chess():
+    """回退到上一次落子时的状态。"""
+
+    assert(piece_order != None)
+
+    set_cell_at(piece_order.pop(), Cell.Empty)
+    switch_piece()
 
 def available_positions():
     """获取可用位置，返回一个包含所有空单元格位置的列表。"""
@@ -137,7 +162,9 @@ def game_is_over():
 #  GUI 实现  #
 #############
 
-screen = None  # 当前游戏绘制屏幕
+screen = None                      # 当前游戏绘制屏幕
+LINE_COLOR = (70, 70, 70)          # 线条颜色
+BACKGROUND_COLOR = (255, 255, 255) # 背景色
 
 def gui_init():
     """初始化游戏界面。"""
@@ -155,11 +182,11 @@ def draw_board():
     assert(screen != None)
 
     for row in range(1, ROWS):
-        pygame.draw.line(screen, (70, 70, 70),
+        pygame.draw.line(screen, LINE_COLOR,
             (row * GRID_SIZE, GAME_SIZE * 0.05),
             (row * GRID_SIZE, GAME_SIZE * 0.95), 8)
     for col in range(1, COLS):
-        pygame.draw.line(screen, (70, 70, 70),
+        pygame.draw.line(screen, LINE_COLOR,
             (GAME_SIZE * 0.05, col * GRID_SIZE),
             (GAME_SIZE * 0.95, col * GRID_SIZE), 8)
 
@@ -174,11 +201,11 @@ def draw_piece(row, col, piece):
     y = row * GRID_SIZE + GRID_SIZE // 2
     if piece == Piece.X:
         l = GRID_SIZE // 8 * 2
-        pygame.draw.line(screen, (70, 70, 70), (x - l, y - l), (x + l, y + l), 14)
-        pygame.draw.line(screen, (70, 70, 70), (x + l, y - l), (x - l, y + l), 14)
+        pygame.draw.line(screen, LINE_COLOR, (x - l, y - l), (x + l, y + l), 14)
+        pygame.draw.line(screen, LINE_COLOR, (x + l, y - l), (x - l, y + l), 14)
     else:
         l = GRID_SIZE // 7 * 2
-        pygame.draw.circle(screen, (70, 70, 70), (x, y), l, 10)
+        pygame.draw.circle(screen, LINE_COLOR, (x, y), l, 10)
 
 def draw_all_pieces():
     """绘制所有棋子。"""
@@ -191,7 +218,7 @@ def draw_all_pieces():
 def display():
     """显示当前游戏状态。"""
 
-    screen.fill((255, 255, 255))
+    screen.fill(BACKGROUND_COLOR)
     draw_board()
     draw_all_pieces()
     pygame.display.flip()
@@ -207,13 +234,28 @@ def game_main_loop(computer_drop = None, player_first = True):
     """
 
     if computer_drop != None and player_first == False:
-        computer_drop()
+        place_chess_at(computer_drop())
+        display()
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+
+            if event.type == pygame.KEYDOWN:
+                # 重新开始游戏
+                if event.key == K_r:
+                    game_init_state()
+                    if computer_drop != None and player_first == False:
+                        place_chess_at(computer_drop())
+                    display()
+
+                # 退出游戏
+                if event.key == K_q:
+                    exit()
+
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_is_over():
+                #用户落子
                 x, y = pygame.mouse.get_pos()
                 row, col = y // GRID_SIZE, x // GRID_SIZE
                 if cell_at_pos(row, col) == Cell.Empty:
