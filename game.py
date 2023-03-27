@@ -2,6 +2,7 @@ from tictactoe import *
 import random
 
 INF = 10
+PLAYER_FIRST = True
 
 def another(player):
     """返回 "Max" 和 "Min" 中另外一个角色"""
@@ -62,8 +63,11 @@ def alphabeta(player, alpha, beta):
     return (best_val, best_pos)
 
 def computer_drop():
-    _, pos = alphabeta("Min", -INF, INF)
+    # pos = available_positions()[0]
+    # pos = random.choice(available_positions())
+    # _, pos = minimax_search("Min" if PLAYER_FIRSR else "Max", -INF, INF)
+    _, pos = alphabeta("Min" if PLAYER_FIRST else "Max", -INF, INF)
     return pos
 
 game_init()
-game_main_loop(computer_drop, True)
+game_main_loop(computer_drop, PLAYER_FIRST)
