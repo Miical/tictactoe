@@ -163,10 +163,17 @@ def game_is_over():
 def print_board():
     """打印当前棋盘。"""
 
-    print("---------")
-    for row in range(ROWS):
-        print(board[row])
-    print("---------")
+    assert(board != None)
+
+    for board_rows in board:
+        for chess in board_rows:
+            if chess == Cell.X:
+                print("X", end=" ")
+            elif chess == Cell.O:
+                print("O", end=" ")
+            else:
+                print("_", end=" ")
+        print()
 
 #############
 #  GUI 实现  #
