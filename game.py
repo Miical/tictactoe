@@ -67,6 +67,7 @@ def computer_drop():
     # pos = random.choice(available_positions())
     # _, pos = minimax_search("Min" if PLAYER_FIRSR else "Max", -INF, INF)
     _, pos = alphabeta("Min" if PLAYER_FIRST else "Max", -INF, INF)
+
     return pos
 
 game_init()
