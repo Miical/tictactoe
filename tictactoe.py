@@ -130,7 +130,7 @@ def winner():
         and cell_at_pos(0, 2) == cell_at_pos(1, 1) == cell_at_pos(2, 0):
         return cell_at_pos(0, 2)
 
-    if available_positions == []:
+    if available_positions() == []:
         return 0
 
     return None
@@ -157,6 +157,14 @@ def game_is_over():
     """判断游戏是否结束。若游戏结束则返回 True, 否则返回 False。"""
 
     return winner() != None
+
+def print_board():
+    """打印当前棋盘"""
+
+    print("---------")
+    for row in range(ROWS):
+        print(board[row])
+    print("---------")
 
 #############
 #  GUI 实现  #
@@ -233,6 +241,7 @@ def game_main_loop(computer_drop = None, player_first = True):
           若 player_first 为 False, 则会在游戏开始时调用该函数。
     """
 
+    display()
     if computer_drop != None and player_first == False:
         place_chess_at(computer_drop())
         display()
@@ -260,6 +269,7 @@ def game_main_loop(computer_drop = None, player_first = True):
                 row, col = y // GRID_SIZE, x // GRID_SIZE
                 if cell_at_pos(row, col) == Cell.Empty:
                     place_chess_at(position(row, col))
+                    display()
                     if computer_drop != None and not game_is_over():
                         place_chess_at(computer_drop())
                     display()
