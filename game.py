@@ -38,12 +38,37 @@ def minimax_search(player):
             undo_chess()
         return (best_val, best_pos)
 
+def alphabeta(player, alpha, beta):
+    """极大极小搜索，带有 alphabeta 剪枝优化。"""
+
+    if game_is_over():
+        return (final_value(), None)
+
+    best_pos = None
+    for pos in available_positions():
+        place_chess_at(pos)
+        sub_val, _ = alphabeta(another(player), alpha, beta)
+        if player == "Max":
+            if sub_val > alpha:
+                alpha, best_pos = sub_val, pos
+        elif player == "Min":
+            if sub_val < beta:
+                beta, best_pos = sub_val, pos
+        undo_chess()
+
+        if beta <= alpha:
+            break
+
+    best_val = alpha if player == "Max" else beta
+    return (best_val, best_pos)
+
 def computer_drop():
     """电脑落子决策函数。"""
 
     # pos = available_positions()[0]
     # pos = random.choice(available_positions())
-    _, pos = minimax_search("Min" if PLAYER_FIRST else "Max")
+    # _, pos = minimax_search("Min" if PLAYER_FIRSR else "Max")
+    _, pos = alphabeta("Min" if PLAYER_FIRST else "Max", -INF, INF)
 
     return pos
 
