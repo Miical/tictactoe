@@ -13,11 +13,13 @@ ROWS, COLS = 3, 3 # 游戏行列数
 
 class Piece:
     """有两种棋子 "X" 和 "O"。"""
+
     X = 1
     O = 2
 
 class Cell:
     """有三种棋盘格子状态，格子为空或放置了 "X", "O" 类型的棋子之一。 """
+
     Empty = 0
     X = Piece.X
     O = Piece.O
@@ -145,6 +147,7 @@ def final_value():
         - 当 "O" 胜利时，价值为 -1
         - 当游戏平局时，价值为 0
     """
+
     win = winner()
     if (win == Piece.X):
         return 1
